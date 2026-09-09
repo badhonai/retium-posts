@@ -16,11 +16,15 @@ each post earned.
 | 1 (Aug 10–16) | 1–7 | 7 | 5 | 407.47 |
 | 2 (Aug 18–24) | 8–14 | 7 | 0 | not recorded |
 | 3 (Aug 25–31) | 15–21 | 7 | 3 | 253.99 |
-| **Total** | | **21** | **8** | **661.46** |
+| 4 (Sep 7–13) | 22–28 | 7 | 0 | awaiting scores |
+| **Total** | | **28** | **8** | **661.46 on record** |
 
-Average 82.68 · Best `w3-d21-matchmaker-cartels-game-theory` (90.56)
+Average 82.68 across the 8 scored posts · Best `w3-d21-matchmaker-cartels-game-theory` (90.56)
 
-Each week covers all five required post types plus two bonus posts.
+**Current week: Week 4** — all seven posts are written and awaiting publication.
+
+Each week covers all five required post types plus two bonus posts, and the programme
+caps you at one post per UTC day.
 
 ---
 

@@ -30,7 +30,7 @@ rules that maximise the score, and a dashboard that tracks posted state and poin
   Retium weeks happen to run 7 posts each because the programme requires 5 post types
   plus up to 2 bonus — that is a convention, not a slot count.
 - **Day numbers are a global running counter and are never reused.** Continue from the
-  last number used (currently 21, so the next week starts at 22).
+  last number used (currently 28, so the next week starts at 29).
 - **Every post carries a stable id:** `w{week}-d{day:02d}-{slug}`,
   e.g. `w1-d04-fee-model-developer-guide`. The id appears in the dashboard and in every
   exported points row so a number can always be traced to an exact post. Never change
@@ -105,33 +105,31 @@ renders blank). Vercel root dir = `site`.
 
 ## STATE — where we left off (update this block every session!)
 
-- **As of 2026-09-10 (session 1 — repo bootstrapped from scratch):**
-  - `badhonai/retium-posts` existed on GitHub but was completely empty. This session
-    created the whole structure and imported the owner's three existing week files.
-  - **Weeks 1–3 imported verbatim** from `RTM_week1.md`, `RTM_week2.md` and
-    `week3_corrected_posts.md` via `tools/import_legacy_posts.py`.
-    Week 1 = days 1–7 (Aug 10–16) · Week 2 = days 8–14 (Aug 18–24) ·
-    Week 3 = days 15–21 (Aug 25–31). 21 posts, 7 per week, all five required types
-    present each week plus two bonus posts.
-  - **8 posts have real scorer results** (from the master prompt's history), seeded into
-    each post's 🏆 Score block and into the dashboard:
-    d1 85 · d2 80 · d3 79.09 · d4 80.84 · d6 82.54 · d15 90.14 · d17 73.29 · d21 90.56.
-    Total on record **661.46**, average 82.68, best = `w3-d21-matchmaker-cartels-game-theory`.
-    Week 2 has no recorded scores — none of the eight scored posts map to it.
-  - **Day 17 caveat:** 73.29 was returned for the ORIGINAL version of that post (it used
-    RouterHelper, BLAKE3, "3-20 blocks", "3/5 quorum", SoftFinal). The file holds the
-    corrected rewrite, which has not been re-scored.
-  - **Dashboard built with a points system:** mark-as-posted (day-keyed
-    `retium_posted_v1`) plus per-post score entry across the five categories
-    (`retium_points_v1`). Scores already in the repo seed the app on first run and stay
-    editable. **Points & export** sheet shows total, average, best post, a per-category
-    breakdown, and exports JSON where every row carries its `id`. Verified end-to-end in
-    a headless DOM: 21 rows, unique ids, totals reconcile to 661.46.
-  - Brand: four official logos in `brand/`, all **monochrome** (no brand colour to
-    extract). `*-onlight` = dark ink, `*-ondark` = light ink. Horizontal 573×106,
-    vertical 415×212. ⚠️ **Open question:** week-1 notes say "blue branding", week-2
-    notes say "#E04000 orange" — ask the owner which is current before making graphics.
-  - Lock password `king`. `site/index.html` ≈ 233 KB.
-  - **NEXT: Week 4 — days 22+.** Seeds are in `posts/week-03/_overview.md`: fee model →
-    micro-transactions · $Pie vs liquid staking (never used at all) · reward
-    distribution vs rich-get-richer · Retium for gaming.
+- **As of 2026-09-10 (session 2 — week 4 written, points simplified, rebranded):**
+  - **WEEK 4 WRITTEN (days 22–28, Sep 7–13 2026), 7 posts, text ready, not yet posted.**
+    First week authored from scratch in this repo. Slate: 22 fee model → what $0.01
+    unlocks (Req #4 timeline) · 23 $Pie is a receipt not a reward (Req #2 external
+    reply) · 24 Keepers, the tier nobody talks about (Req #1 repost) · 25 validator
+    economics with 0% inflation (Req #3 X Community) · 26 priority credits have a
+    ceiling (Req #5 comment) · 27 Retium for gaming (bonus) · 28 HardFinal settlement
+    use cases (bonus). All five required types present + 2 bonus, one per day.
+    Four topics came from the seed list in `posts/week-03/_overview.md`; the other three
+    are new angles that clear every consumed list. `tools/retium_lint.py`: 0 findings.
+  - **POINTS ARE NOW A SINGLE NUMBER PER POST.** Owner's call: no category breakdown in
+    the app. Each post file holds `- Score: 87`; the old five-category figures survive
+    only as a reference note under the Score block. The dashboard has one field.
+    Do not reintroduce the category form.
+  - **NO GRAND TOTAL IN THE DASHBOARD.** Home shows the current week only
+    ("W4 pts · n/7 scored"). The Points sheet leads with the current week and lists all
+    weeks. The exported JSON carries `current_week`, a per-week breakdown, and one row
+    per post with its `id`. Keep it that way.
+  - **BRAND: primary #fc450a, brand dark #1f1918.** The old green #3fb37f is now the
+    secondary accent. Applied to the accent colour, lock screen, favicon and theme
+    colour. ⚠️ All four official logos are monochrome, so the palette came from the
+    owner, not from the artwork.
+  - 28 posts total, 8 scored, 661.46 points on record (weeks 1 and 3; week 2 was never
+    recorded and week 4 is unscored).
+  - Lock password `king`. All browser storage goes through `LS` in `app/src/data.js`.
+  - **NEXT: Week 5 — days 29+.** Seeds are in `posts/week-04/_overview.md`: the oracle
+    rate · "what if 40% of Workers go offline" · reading a PrimeMesh block · one audit
+    surface (Unified Contract Layer) · wallet-to-first-transaction onboarding.
