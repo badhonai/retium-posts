@@ -1,37 +1,29 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { DATA, CATS, LABEL, SCHEME, esc, round2, totalOf } from '../data.js'
+import { DATA, esc } from '../data.js'
 import { ToastContext } from '../toast.js'
 import { status } from './shared.jsx'
 
 const BADGE = { done: '✓ POSTED', ready: 'READY' }
-const BCOLOR = { done: 'var(--grn)', ready: 'var(--blue)' }
+const BCOLOR = { done: 'var(--brand)', ready: 'var(--blue)' }
 
 export default function DetailSheet({ day, posted, onMark, points, onSavePoints, onClose }) {
   const toast = useContext(ToastContext)
   const d = DATA.find(x => x.day === day)
   const st = status(d, posted)
-  const saved = points[day] || null
+  const saved = points[day]
 
-  const [form, setForm] = useState(() => {
-    const o = {}
-    for (const c of CATS) o[c] = saved && saved[c] !== undefined ? String(saved[c]) : ''
-    return o
-  })
+  const [val, setVal] = useState(() => (saved === undefined ? '' : String(saved)))
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = '' }
   }, [])
 
-  // reset the form if the sheet is opened for a different day
+  // reset when the sheet is opened for a different day
   useEffect(() => {
-    const o = {}
-    for (const c of CATS) o[c] = saved && saved[c] !== undefined ? String(saved[c]) : ''
-    setForm(o)
+    setVal(saved === undefined ? '' : String(saved))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [day])
-
-  const liveTotal = round2(CATS.reduce((s, c) => s + (parseFloat(form[c]) || 0), 0))
 
   const copyPost = async () => {
     try { await navigator.clipboard.writeText(d.post); toast('Copied to clipboard ✓') }
@@ -45,11 +37,9 @@ export default function DetailSheet({ day, posted, onMark, points, onSavePoints,
   }
 
   const save = () => {
-    onSavePoints(day, form)
-    toast(liveTotal ? `Saved — ${liveTotal} points` : 'Score cleared')
+    onSavePoints(day, val)
+    toast(val === '' ? 'Score cleared' : `Saved — ${val} points`)
   }
-
-  const clear = () => { setForm(Object.fromEntries(CATS.map(c => [c, '']))); onSavePoints(day, {}) }
 
   return (
     <div id="sheet" className="open">
@@ -77,30 +67,20 @@ export default function DetailSheet({ day, posted, onMark, points, onSavePoints,
         </div>
 
         <div className="slab label">Score</div>
-        <div className="ptform">
-          {CATS.map(c => (
-            <label className="ptrow" key={c}>
-              <span>{LABEL[c]}<i>max {SCHEME[c]}</i></span>
-              <input type="number" step="0.01" min="0" max={SCHEME[c]} inputMode="decimal"
-                placeholder="—" value={form[c]}
-                onChange={e => setForm(f => ({ ...f, [c]: e.target.value }))} />
-            </label>
-          ))}
-          <div className="ptrow total">
-            <span>Total</span>
-            <b className="mono">{liveTotal || '—'}</b>
-          </div>
+        <div className="ptrow">
+          <span>Points scored</span>
+          <input type="number" step="0.01" min="0" max="110" inputMode="decimal"
+            placeholder="—" value={val}
+            onChange={e => setVal(e.target.value)} />
         </div>
         <div className="acts" style={{ marginTop: 10 }}>
           <button className="btn ok blk" onClick={save}>💾 Save score</button>
-          <button className="btn sec blk" onClick={clear}>Clear</button>
+          {val !== '' && <button className="btn sec blk" onClick={() => { setVal(''); onSavePoints(day, '') }}>Clear</button>}
         </div>
-        {d.seed && (
+        {typeof d.seed === 'number' && (
           <p className="hint">
-            A score for this post is also recorded in the repo file
-            ({Object.entries(d.seed).map(([k, v]) => `${LABEL[k]} ${v}`).join(' · ')},
-            total {totalOf(d.seed)}). Editing here updates your live copy only — it does not
-            rewrite the post file.
+            {d.seed} points for this post are also recorded in the repo file.
+            Editing here updates your live copy only — it does not rewrite the post.
           </p>
         )}
 

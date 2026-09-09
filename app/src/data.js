@@ -4,20 +4,10 @@ export const DATA = posts.data
 export const SHA = posts.sha
 export const FNV = posts.fnv
 
-// Retium scoring scheme (Community Contribution Program).
-// The five categories the scorer returns, in display order.
-export const CATS = ['base', 'accuracy', 'originality', 'engagement', 'consistency']
-export const SCHEME = { base: 30, accuracy: 30, originality: 20, engagement: 15, consistency: 15 }
-export const LABEL = {
-  base: 'Base',
-  accuracy: 'Accuracy',
-  originality: 'Originality',
-  engagement: 'Engagement',
-  consistency: 'Consistency',
-}
-
+// Points are a single number per post - whatever the scorer returned (e.g. 87).
+// There is no category breakdown in the app; the programme's five categories are
+// only kept as a note in each post file, for reference.
 export const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100
-export const totalOf = (p) => (p ? round2(CATS.reduce((s, c) => s + (parseFloat(p[c]) || 0), 0)) : 0)
 
 export const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
 
@@ -49,3 +39,6 @@ export function downloadFile(name, text) {
     return true
   } catch { return false }
 }
+
+// Highest week number in the repo — "this week" for score purposes.
+export const CURRENT_WEEK = Math.max(...DATA.map(d => d.week))

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react'
-import { CATS, downloadFile } from '../data.js'
+import { downloadFile } from '../data.js'
 import { ToastContext } from '../toast.js'
 
 export default function BackupSheet({ posted, setPosted, points, setPoints, onClose }) {
@@ -31,13 +31,8 @@ export default function BackupSheet({ posted, setPosted, points, setPoints, onCl
       if (parsed.points && typeof parsed.points === 'object') {
         const cp = {}
         for (const [k, v] of Object.entries(parsed.points)) {
-          if (!v || typeof v !== 'object') continue
-          const o = {}
-          for (const c of CATS) {
-            const n = parseFloat(v[c])
-            if (!isNaN(n)) o[c] = n
-          }
-          if (Object.keys(o).length) cp[parseInt(k, 10)] = o
+          const n = parseFloat(v)
+          if (!isNaN(n)) cp[parseInt(k, 10)] = n
         }
         setPoints(cp)
       }

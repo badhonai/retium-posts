@@ -1,21 +1,12 @@
 import React, { useContext, useMemo } from 'react'
-import { CATS, LABEL, SCHEME, downloadFile, round2, totalOf } from '../data.js'
+import { downloadFile, round2 } from '../data.js'
 import { ToastContext } from '../toast.js'
 
 export default function PointsSheet({ buildExport, onClose }) {
   const toast = useContext(ToastContext)
   const data = useMemo(() => buildExport(), [buildExport])
   const json = useMemo(() => JSON.stringify(data, null, 2), [data])
-
-  // per-category totals across every scored post - shows where points are leaking
-  const byCat = useMemo(() => {
-    const rows = data.posts.filter(p => p.points)
-    return CATS.map(c => ({
-      key: c,
-      got: round2(rows.reduce((s, r) => s + (r.points[c] || 0), 0)),
-      max: SCHEME[c] * rows.length,
-    }))
-  }, [data])
+  const cur = data.current_week
 
   const copy = async () => {
     try {
@@ -40,31 +31,34 @@ export default function PointsSheet({ buildExport, onClose }) {
           <span className="pill">{data.totals.posted} posted</span>
         </div>
 
-        <div className="ptsum">
-          <div className="ptbig">
-            <b>{data.totals.points}</b>
-            <span>total points</span>
-          </div>
-          <div className="ptside">
-            <div><b>{data.totals.average}</b><span>average</span></div>
-            <div><b>{data.totals.best ? data.posts.find(p => p.id === data.totals.best).day : '—'}</b><span>best day</span></div>
-          </div>
-        </div>
-
-        <div className="slab label">Points by category</div>
-        <div className="ptcats">
-          {byCat.map(c => {
-            const pct = c.max ? Math.round(c.got / c.max * 100) : 0
-            return (
-              <div className="ptcat" key={c.key}>
-                <div className="ptcat-top">
-                  <span>{LABEL[c.key]}</span>
-                  <span className="mono">{c.got}<i>/{c.max}</i></span>
-                </div>
-                <div className="bar"><i style={{ width: pct + '%' }} /></div>
+        {cur && (
+          <>
+            <div className="ptlabel">This week — Week {cur.week}</div>
+            <div className="ptsum cur">
+              <div className="ptbig">
+                <b>{cur.points}</b>
+                <span>points this week</span>
               </div>
-            )
-          })}
+              <div className="ptside">
+                <div><b>{cur.average}</b><span>average</span></div>
+                <div><b>{cur.scored}/{cur.posts}</b><span>scored</span></div>
+              </div>
+            </div>
+          </>
+        )}
+
+        <div className="slab label">All weeks</div>
+        <div className="wkpts">
+          {data.weeks.map(w => (
+            <div key={w.week} className={'wkpts-row' + (cur && w.week === cur.week ? ' cur' : '') +
+              (w.scored ? '' : ' none')}>
+              <span className="w">W{w.week}</span>
+              <span className="c">
+                {w.scored ? `${w.scored} of ${w.posts} scored · avg ${w.average}` : 'not scored yet'}
+              </span>
+              <span className="v">{w.scored ? w.points : '—'}</span>
+            </div>
+          ))}
         </div>
 
         <div className="acts">

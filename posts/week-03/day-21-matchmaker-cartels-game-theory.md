@@ -56,13 +56,11 @@ decentralization on Retium isn't a governance aspiration. it's a mechanical prop
 
 No visual was produced for this post (it is already published). If you ever re-run this topic, see `IMAGE_PROMPT.md`.
 
-## 🏆 Score (actual, from the scorer)
+## 🏆 Score
 
-- Base: 30
-- Accuracy: 27
-- Originality: 17
-- Engagement: 1.56
-- Consistency: 15
+- Score: 90.56
+
+> Breakdown kept for reference: base 30 · accuracy 27 · originality 17 · engagement 1.56 · consistency 15
 
 ## 🚀 Status
 

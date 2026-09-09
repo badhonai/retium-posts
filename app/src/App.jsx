@@ -6,7 +6,7 @@ import DetailSheet from './components/DetailSheet.jsx'
 import BackupSheet from './components/BackupSheet.jsx'
 import PointsSheet from './components/PointsSheet.jsx'
 import TabBar from './components/TabBar.jsx'
-import { DATA, CATS, SCHEME, round2, totalOf, LS } from './data.js'
+import { DATA, round2, LS } from './data.js'
 import { ToastContext } from './toast.js'
 
 const K_POSTED = 'retium_posted_v1'   // day-keyed -> survives new weeks & deployments
@@ -32,29 +32,22 @@ export default function App() {
     } catch { return {} }
   })
 
-  // Points are keyed by day, exactly like posted marks. Any score already recorded
-  // in the post file seeds the entry the first time the app runs, so the repo's
-  // real scorer results show up immediately and stay editable afterwards.
+  // Points: one number per post, keyed by day exactly like posted marks. Any score
+  // already recorded in the post file seeds the entry the first time the app runs, so
+  // the repo's real scorer results show up immediately and stay editable afterwards.
   const [points, setPoints] = useState(() => {
     try {
       const raw = JSON.parse(LS.get(K_POINTS, '{}'))
       const clean = {}
       for (const d of DATA) {
-        const v = raw[d.day]
-        if (v && typeof v === 'object') {
-          const o = {}
-          for (const c of CATS) {
-            const n = parseFloat(v[c])
-            if (!isNaN(n)) o[c] = n
-          }
-          if (Object.keys(o).length) { clean[d.day] = o; continue }
-        }
-        if (d.seed) clean[d.day] = { ...d.seed }   // seed from the repo file
+        const n = parseFloat(raw[d.day])
+        if (!isNaN(n)) { clean[d.day] = n; continue }
+        if (typeof d.seed === 'number') clean[d.day] = d.seed   // seed from the repo file
       }
       return clean
     } catch {
       const clean = {}
-      for (const d of DATA) if (d.seed) clean[d.day] = { ...d.seed }
+      for (const d of DATA) if (typeof d.seed === 'number') clean[d.day] = d.seed
       return clean
     }
   })
@@ -91,52 +84,58 @@ export default function App() {
     })
   }, [showToast])
 
-  const savePoints = useCallback((day, obj) => {
+  const savePoints = useCallback((day, value) => {
     setPoints(p => {
       const n = { ...p }
-      const clean = {}
-      for (const c of CATS) {
-        const v = parseFloat(obj[c])
-        if (!isNaN(v)) clean[c] = v
-      }
-      if (Object.keys(clean).length) n[day] = clean
-      else delete n[day]
+      const v = parseFloat(value)
+      if (value === '' || value === null || isNaN(v)) delete n[day]
+      else n[day] = v
       return n
     })
   }, [])
 
-  // The export: one row per post, each carrying a stable id so a number in the
-  // JSON can always be traced back to an exact post.
+  // Export: one row per post, each carrying a stable id so a number in the JSON can
+  // always be traced back to an exact post. Totals are reported per week — the
+  // dashboard never shows one running grand total.
   const buildExport = useCallback(() => {
-    const rows = DATA.map(d => {
-      const p = points[d.day] || null
+    const rows = DATA.map(d => ({
+      id: d.id,                       // e.g. w1-d04-fee-model-developer-guide
+      day: d.day,
+      week: d.week,
+      slug: d.slug,
+      title: d.title,
+      type: d.ptype,
+      requirement: d.req,
+      posted: !!posted[d.day],
+      points: points[d.day] === undefined ? null : points[d.day],
+    }))
+    const weekNums = [...new Set(DATA.map(d => d.week))].sort((a, b) => a - b)
+    const weeks = weekNums.map(w => {
+      const rs = rows.filter(r => r.week === w)
+      const sc = rs.filter(r => r.points !== null)
+      const sum = round2(sc.reduce((s, r) => s + r.points, 0))
       return {
-        id: d.id,                       // e.g. w1-d04-fee-model-developer-guide
-        day: d.day,
-        week: d.week,
-        slug: d.slug,
-        title: d.title,
-        type: d.ptype,
-        requirement: d.req,
-        posted: !!posted[d.day],
-        points: p ? { ...p, total: totalOf(p) } : null,
+        week: w,
+        posts: rs.length,
+        posted: rs.filter(r => r.posted).length,
+        scored: sc.length,
+        points: sum,
+        average: sc.length ? round2(sum / sc.length) : 0,
       }
     })
-    const scored = rows.filter(r => r.points)
-    const sum = round2(scored.reduce((s, r) => s + r.points.total, 0))
+    const scoredAll = rows.filter(r => r.points !== null)
+    const sumAll = round2(scoredAll.reduce((s, r) => s + r.points, 0))
     return {
       project: 'retium-posts',
       exported: new Date().toISOString().slice(0, 10),
-      points_scheme: SCHEME,
+      current_week: weeks[weeks.length - 1] || null,
+      weeks,
       totals: {
         posts: rows.length,
         posted: rows.filter(r => r.posted).length,
-        scored: scored.length,
-        points: sum,
-        average: scored.length ? round2(sum / scored.length) : 0,
-        best: scored.length
-          ? scored.reduce((a, b) => (b.points.total > a.points.total ? b : a)).id
-          : null,
+        scored: scoredAll.length,
+        points: sumAll,
+        average: scoredAll.length ? round2(sumAll / scoredAll.length) : 0,
       },
       posts: rows,
     }
@@ -145,13 +144,12 @@ export default function App() {
   if (!unlocked) return <Lock onUnlock={() => setUnlocked(true)} />
 
   const goPosts = (w) => { setWeekFilter(w); setTab('posts') }
-  const totals = buildExport().totals
 
   return (
     <ToastContext.Provider value={showToast}>
       <div id="app">
         {tab === 'home'
-          ? <Home posted={posted} points={points} totals={totals} onOpenDay={setOpenDay}
+          ? <Home posted={posted} points={points} onOpenDay={setOpenDay}
               goPosts={goPosts} theme={theme} toggleTheme={toggleTheme} />
           : <Posts posted={posted} points={points} weekFilter={weekFilter}
               setWeekFilter={setWeekFilter} onOpenDay={setOpenDay}

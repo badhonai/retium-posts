@@ -1,11 +1,11 @@
 import React, { useContext } from 'react'
-import { DATA, esc, round2, totalOf } from '../data.js'
+import { DATA, esc, round2 } from '../data.js'
 import { ToastContext } from '../toast.js'
 import { Header, status } from './shared.jsx'
 
 const MAXW = Math.max(...DATA.map(d => d.week))
 
-export default function Home({ posted, points, totals, onOpenDay, goPosts, theme, toggleTheme }) {
+export default function Home({ posted, points, onOpenDay, goPosts, theme, toggleTheme }) {
   const toast = useContext(ToastContext)
   // A week is however many posts it has; it closes when the next week opens. The denominator
   // is the real post count, never weeks x 7. No empty slots, no "missing" week, ever.
@@ -14,7 +14,12 @@ export default function Home({ posted, points, totals, onOpenDay, goPosts, theme
   const left = total - done
   const pct = total ? Math.round(done / total * 100) : 0        // always 0..100
   const next = DATA.find(d => !posted[d.day])
-  const scored = DATA.filter(d => points[d.day]).length
+  // "This week" = the highest week in the repo. There is deliberately no running
+  // grand total anywhere in the dashboard - only the current week is summed.
+  const curWeek = Math.max(...DATA.map(d => d.week))
+  const curDays = DATA.filter(d => d.week === curWeek)
+  const curScored = curDays.filter(d => points[d.day] !== undefined)
+  const curPts = round2(curScored.reduce((s, d) => s + points[d.day], 0))
 
   const copyPost = async (d) => {
     try { await navigator.clipboard.writeText(d.post); toast('Copied to clipboard ✓') }
@@ -59,7 +64,7 @@ export default function Home({ posted, points, totals, onOpenDay, goPosts, theme
       <div className="card prog fade">
         <svg width="96" height="96" viewBox="0 0 96 96">
           <circle cx="48" cy="48" r="41" fill="none" stroke="var(--card2)" strokeWidth="7" />
-          <circle cx="48" cy="48" r="41" fill="none" stroke="var(--grn)" strokeWidth="7"
+          <circle cx="48" cy="48" r="41" fill="none" stroke="var(--brand)" strokeWidth="7"
             strokeLinecap="round" strokeDasharray={C} strokeDashoffset={C * (1 - pct / 100)}
             transform="rotate(-90 48 48)"
             style={{ transition: 'stroke-dashoffset 1s cubic-bezier(.22,1,.36,1)' }} />
@@ -86,7 +91,7 @@ export default function Home({ posted, points, totals, onOpenDay, goPosts, theme
           <b className={left ? 'warm' : 'good'}>{left}</b><span>left</span>
         </div>
         <div className="card stat fade">
-          <b>{round2(totals.points)}</b><span>points · {scored} scored</span>
+          <b>{curPts}</b><span>W{curWeek} pts · {curScored.length}/{curDays.length} scored</span>
         </div>
       </div>
 
@@ -106,8 +111,8 @@ export default function Home({ posted, points, totals, onOpenDay, goPosts, theme
           )
         }
         const dn = days.filter(d => posted[d.day]).length
-        const wp = round2(days.reduce((s, d) => s + totalOf(points[d.day]), 0))
-        const ws = days.filter(d => points[d.day]).length
+        const wp = round2(days.reduce((s, d) => s + (points[d.day] || 0), 0))
+        const ws = days.filter(d => points[d.day] !== undefined).length
         return (
           <div className="card wk fade" key={w} onClick={() => goPosts(w)}>
             <div className="wn">W{w}</div>

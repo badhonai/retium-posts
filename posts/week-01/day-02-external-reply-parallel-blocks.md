@@ -31,13 +31,11 @@ No image needed for a reply (replies with images can look spammy). Focus on clea
 
 ---
 
-## 🏆 Score (actual, from the scorer)
+## 🏆 Score
 
-- Base: 30
-- Accuracy: 22
-- Originality: 13
-- Engagement: 0
-- Consistency: 15
+- Score: 80
+
+> Breakdown kept for reference: base 30 · accuracy 22 · originality 13 · engagement 0 · consistency 15
 
 ## 🚀 Status
 

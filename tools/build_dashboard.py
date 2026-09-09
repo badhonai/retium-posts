@@ -31,10 +31,6 @@ except ImportError:
     raise SystemExit("Pillow required:  pip install Pillow")
 
 
-# Scoring categories, in the order they appear in a post's 🏆 Score block.
-CATS = ("Base", "Accuracy", "Originality", "Engagement", "Consistency")
-
-
 def parse_day(path, week):
     txt = open(path, encoding="utf-8").read()
     day = int(re.search(r"^# Day (\d+)", txt, re.M).group(1))
@@ -51,13 +47,11 @@ def parse_day(path, week):
     vis = re.search(r"## 🎨 Visual notes\n\n(.*?)(?=\n## |\Z)", txt, re.S)
     facts = re.search(r"## ✅ Facts & sources\n\n(.*?)(?=\n## |\Z)", txt, re.S)
 
-    # 🏆 Score block -> the seed points recorded in the repo file
-    seed = {}
-    for c in CATS:
-        mm = re.search(rf"^- {c}: ([\d.]+)\s*$", txt, re.M)
-        if mm:
-            seed[c.lower()] = float(mm.group(1))
-    seed = seed if len(seed) == len(CATS) else None
+    # 🏆 Score block -> the points the scorer returned, recorded in the repo file.
+    # One number per post. The five-category breakdown is kept in the file as a
+    # reference note only - the app never asks for it.
+    ms = re.search(r"^- Score: ([\d.]+)\s*$", txt, re.M)
+    seed = float(ms.group(1)) if ms else None
 
     base = os.path.splitext(path)[0]
     img = None
@@ -150,8 +144,8 @@ def build_and_inline():
 
 def main():
     entries = write_data_json()
-    scored = [e for e in entries if e["seed"]]
-    pts = sum(sum(e["seed"].values()) for e in scored)
+    scored = [e for e in entries if e["seed"] is not None]
+    pts = sum(e["seed"] for e in scored)
     print(f"data.json: {len(entries)} posts, {sum(1 for e in entries if e['img'])} images")
     print(f"seed scores: {len(scored)} posts scored, {pts:g} points on record")
     build_and_inline()

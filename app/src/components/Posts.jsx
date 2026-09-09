@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { DATA, esc, totalOf } from '../data.js'
+import { DATA, esc } from '../data.js'
 import { Header, status } from './shared.jsx'
 
 const MAXW = Math.max(...DATA.map(d => d.week))
@@ -47,8 +47,8 @@ export default function Posts({ posted, points, weekFilter, setWeekFilter, onOpe
               <div className="t">Day {d.day} · {esc(d.title)}</div>
               <div className="s">W{d.week} · {d.ptype} · {d.req} · {d.post.length}c</div>
             </div>
-            {p
-              ? <div className="badge done pts">{totalOf(p)} pts</div>
+            {p !== undefined
+              ? <div className="badge done pts">{p} pts</div>
               : <div className={'badge ' + st}>{BADGE[st]}</div>}
           </div>
         )

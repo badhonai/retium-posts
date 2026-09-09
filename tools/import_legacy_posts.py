@@ -215,9 +215,10 @@ def render(meta, text, visual):
                 "published). If you ever re-run this topic, see `IMAGE_PROMPT.md`.\n")
     if score:
         b, a, o, e, c = score
-        sc = (f"\n## 🏆 Score (actual, from the scorer)\n\n"
-              f"- Base: {b}\n- Accuracy: {a}\n- Originality: {o}\n"
-              f"- Engagement: {e}\n- Consistency: {c}\n")
+        total = round(b + a + o + e + c, 2)
+        sc = (f"\n## 🏆 Score\n\n- Score: {total:g}\n\n"
+              f"> Breakdown kept for reference: base {b:g} · accuracy {a:g} · "
+              f"originality {o:g} · engagement {e:g} · consistency {c:g}\n")
     else:
         sc = ("\n## 🏆 Score\n\n- Not scored yet — fill this in when the scorer posts results.\n")
     if day == 17:

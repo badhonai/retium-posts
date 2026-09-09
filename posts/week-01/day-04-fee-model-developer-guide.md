@@ -56,13 +56,11 @@ if you're building on Retium's testnet, this fee model is something you can test
 
 ---
 
-## 🏆 Score (actual, from the scorer)
+## 🏆 Score
 
-- Base: 30
-- Accuracy: 21
-- Originality: 12
-- Engagement: 2.84
-- Consistency: 15
+- Score: 80.84
+
+> Breakdown kept for reference: base 30 · accuracy 21 · originality 12 · engagement 2.84 · consistency 15
 
 ## 🚀 Status
 

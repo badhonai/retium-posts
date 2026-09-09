@@ -42,13 +42,11 @@ wallet.retium.org
 
 No visual was produced for this post (it is already published). If you ever re-run this topic, see `IMAGE_PROMPT.md`.
 
-## 🏆 Score (actual, from the scorer)
+## 🏆 Score
 
-- Base: 30
-- Accuracy: 13
-- Originality: 15
-- Engagement: 0.29
-- Consistency: 15
+- Score: 73.29
+
+> Breakdown kept for reference: base 30 · accuracy 13 · originality 15 · engagement 0.29 · consistency 15
 
 > ⚠️ The 73.29 score was returned for the ORIGINAL version of this post (it used RouterHelper, BLAKE3, 3-20 blocks, 3/5 quorum, SoftFinal — all now on the banned list). The text below is the corrected rewrite, which has not been re-scored.
 

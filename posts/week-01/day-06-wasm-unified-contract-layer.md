@@ -53,13 +53,11 @@ SDK testnet release is planned for December 2026. if you're a developer interest
 
 ---
 
-## 🏆 Score (actual, from the scorer)
+## 🏆 Score
 
-- Base: 30
-- Accuracy: 22
-- Originality: 13
-- Engagement: 2.54
-- Consistency: 15
+- Score: 82.54
+
+> Breakdown kept for reference: base 30 · accuracy 22 · originality 13 · engagement 2.54 · consistency 15
 
 ## 🚀 Status
 

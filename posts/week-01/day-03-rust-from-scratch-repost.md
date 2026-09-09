@@ -44,13 +44,11 @@ public testnet is live. if you're a Rust dev, this is worth a look.
 
 ---
 
-## 🏆 Score (actual, from the scorer)
+## 🏆 Score
 
-- Base: 30
-- Accuracy: 20
-- Originality: 13
-- Engagement: 1.09
-- Consistency: 15
+- Score: 79.09
+
+> Breakdown kept for reference: base 30 · accuracy 20 · originality 13 · engagement 1.09 · consistency 15
 
 ## 🚀 Status
 

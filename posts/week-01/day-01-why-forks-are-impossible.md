@@ -53,13 +53,11 @@ the public testnet is live if you want to see it in action. wallet at wallet.ret
 
 ---
 
-## 🏆 Score (actual, from the scorer)
+## 🏆 Score
 
-- Base: 30
-- Accuracy: 26
-- Originality: 15
-- Engagement: 0
-- Consistency: 14
+- Score: 85
+
+> Breakdown kept for reference: base 30 · accuracy 26 · originality 15 · engagement 0 · consistency 14
 
 ## 🚀 Status
 

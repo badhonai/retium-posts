@@ -52,13 +52,11 @@ wallet.retium.org
 
 No visual was produced for this post (it is already published). If you ever re-run this topic, see `IMAGE_PROMPT.md`.
 
-## 🏆 Score (actual, from the scorer)
+## 🏆 Score
 
-- Base: 30
-- Accuracy: 28
-- Originality: 17
-- Engagement: 0.14
-- Consistency: 15
+- Score: 90.14
+
+> Breakdown kept for reference: base 30 · accuracy 28 · originality 17 · engagement 0.14 · consistency 15
 
 ## 🚀 Status
 
