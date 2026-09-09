@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { SHA, FNV } from '../data.js'
+import { SHA, FNV, LS } from '../data.js'
 
 function fnv1a(s) {
   let h = 0x811c9dc5
@@ -29,7 +29,7 @@ export default function Lock({ onUnlock }) {
     const got = await sha(ref.current.value)
     const hit = got === SHA || got === 'fnv:' + FNV
     if (hit) {
-      localStorage.setItem('utexo_lock_v1', 'ok')
+      LS.set('retium_lock_v1', 'ok')
       onUnlock()
     } else {
       setErr(true); setShake(true)
@@ -46,7 +46,7 @@ export default function Lock({ onUnlock }) {
           <path d="M8 10.5V7a4 4 0 0 1 8 0v3.5" />
         </svg>
       </div>
-      <h1>utexo.posts</h1>
+      <h1>retium.posts</h1>
       <p>Private content dashboard — unlock to continue</p>
       <div className="field">
         <input ref={ref} type="password" placeholder="Password" autoComplete="off"

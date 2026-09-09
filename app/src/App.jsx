@@ -6,7 +6,7 @@ import DetailSheet from './components/DetailSheet.jsx'
 import BackupSheet from './components/BackupSheet.jsx'
 import PointsSheet from './components/PointsSheet.jsx'
 import TabBar from './components/TabBar.jsx'
-import { DATA, CATS, SCHEME, round2, totalOf } from './data.js'
+import { DATA, CATS, SCHEME, round2, totalOf, LS } from './data.js'
 import { ToastContext } from './toast.js'
 
 const K_POSTED = 'retium_posted_v1'   // day-keyed -> survives new weeks & deployments
@@ -15,13 +15,13 @@ const K_LOCK = 'retium_lock_v1'
 const K_THEME = 'retium_theme_v1'
 
 export default function App() {
-  const [theme, setTheme] = useState(() => localStorage.getItem(K_THEME) || 'dark')
-  const [unlocked, setUnlocked] = useState(() => localStorage.getItem(K_LOCK) === 'ok')
+  const [theme, setTheme] = useState(() => LS.get(K_THEME, 'dark'))
+  const [unlocked, setUnlocked] = useState(() => LS.get(K_LOCK) === 'ok')
 
   const [posted, setPosted] = useState(() => {
     // only keep marks for days that actually exist in the repo -> counts always match reality
     try {
-      const raw = JSON.parse(localStorage.getItem(K_POSTED) || '{}')
+      const raw = JSON.parse(LS.get(K_POSTED, '{}'))
       const valid = new Set(DATA.map(d => d.day))
       const clean = {}
       for (const [k, v] of Object.entries(raw)) {
@@ -37,7 +37,7 @@ export default function App() {
   // real scorer results show up immediately and stay editable afterwards.
   const [points, setPoints] = useState(() => {
     try {
-      const raw = JSON.parse(localStorage.getItem(K_POINTS) || '{}')
+      const raw = JSON.parse(LS.get(K_POINTS, '{}'))
       const clean = {}
       for (const d of DATA) {
         const v = raw[d.day]
@@ -70,12 +70,12 @@ export default function App() {
     showToast._h = setTimeout(() => setToast(null), 1600)
   }, [])
 
-  useEffect(() => { localStorage.setItem(K_POSTED, JSON.stringify(posted)) }, [posted])
-  useEffect(() => { localStorage.setItem(K_POINTS, JSON.stringify(points)) }, [points])
+  useEffect(() => { LS.set(K_POSTED, JSON.stringify(posted)) }, [posted])
+  useEffect(() => { LS.set(K_POINTS, JSON.stringify(points)) }, [points])
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
-    localStorage.setItem(K_THEME, theme)
+    LS.set(K_THEME, theme)
   }, [theme])
 
   const toggleTheme = useCallback(() => {

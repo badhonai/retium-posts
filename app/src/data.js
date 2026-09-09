@@ -21,6 +21,18 @@ export const totalOf = (p) => (p ? round2(CATS.reduce((s, c) => s + (parseFloat(
 
 export const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
 
+// localStorage throws inside a sandboxed iframe (no allow-same-origin), which is how
+// the file preview renders. Every access goes through these so the dashboard still
+// runs there - it just cannot persist.
+export const LS = {
+  get(k, d = null) {
+    try { const v = localStorage.getItem(k); return v === null ? d : v } catch { return d }
+  },
+  set(k, v) {
+    try { localStorage.setItem(k, v); return true } catch { return false }
+  },
+}
+
 // Trigger a file download without leaving the page. Wrapped because sandboxed
 // iframes can block it — callers must also offer a copy-to-clipboard fallback.
 export function downloadFile(name, text) {

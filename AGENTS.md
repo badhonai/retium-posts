@@ -71,6 +71,10 @@ The dashboard builder parses these exactly — do not rename the headers.
    @RetiumChain. Never carry a fact forward from an older post unverified.
 6. **Owner's content is the owner's.** Do not "improve" wording in a post the owner
    has approved.
+7. **All browser storage goes through `LS` in `app/src/data.js`.** The file preview
+   renders in a sandboxed iframe where `localStorage` throws a SecurityError, so the
+   helpers keep the dashboard running there (it just cannot persist). Never call
+   `localStorage` directly — a direct call blanks the whole app in the preview.
 
 ## Weekly workflow
 
