@@ -40,10 +40,16 @@ export function Header({ title, right, theme, toggleTheme, children }) {
   )
 }
 
-// A post is either posted or ready. Retium posts ship as long-form text; images are
-// optional, so there is no "needs image" state here (unlike the other projects).
+// Only the long-form posts carry an image (see IMAGE_PROMPT.md). The External
+// Engagement Reply and the Comment on a Retium Post are deliberately text-only -
+// they hang off someone else's post, so a graphic there reads as spam. Those stay
+// "ready"; a long-form post with no image is genuinely "noimg".
+const TEXT_ONLY_TYPES = ['External Engagement Reply', 'Comment on Retium Post']
+const isTextOnly = (d) => TEXT_ONLY_TYPES.includes(d.ptype)
+
 function status(d, posted) {
-  return posted[d.day] ? 'done' : 'ready'
+  if (posted[d.day]) return 'done'
+  return (!d.img && !isTextOnly(d)) ? 'noimg' : 'ready'
 }
 
-export { status, MARK }
+export { status, isTextOnly, MARK }

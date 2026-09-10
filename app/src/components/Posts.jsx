@@ -42,7 +42,9 @@ export default function Posts({ posted, points, weekFilter, setWeekFilter, onOpe
         const p = points[d.day]
         return (
           <div className="card prow fade" key={d.day} onClick={() => onOpenDay(d.day)}>
-            <div className="th ph">{d.day}</div>
+            {d.img
+              ? <img className="th" src={d.thumb} loading="lazy" alt="" />
+              : <div className="th ph">{d.day}</div>}
             <div className="mid">
               <div className="t">Day {d.day} · {esc(d.title)}</div>
               <div className="s">W{d.week} · {d.ptype} · {d.req} · {d.post.length}c</div>

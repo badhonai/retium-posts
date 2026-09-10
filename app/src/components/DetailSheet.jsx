@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { DATA, esc } from '../data.js'
 import { ToastContext } from '../toast.js'
-import { status } from './shared.jsx'
+import { status, isTextOnly } from './shared.jsx'
 
-const BADGE = { done: '✓ POSTED', ready: 'READY' }
-const BCOLOR = { done: 'var(--brand)', ready: 'var(--blue)' }
+const BADGE = { done: '✓ POSTED', ready: 'READY', noimg: 'NEEDS IMAGE' }
+const BCOLOR = { done: 'var(--brand)', ready: 'var(--blue)', noimg: 'var(--org)' }
 
 export default function DetailSheet({ day, posted, onMark, points, onSavePoints, onClose }) {
   const toast = useContext(ToastContext)
@@ -35,6 +35,12 @@ export default function DetailSheet({ day, posted, onMark, points, onSavePoints,
       toast(ok ? 'Copied to clipboard ✓' : 'Copy blocked — select the text manually')
     }
   }
+  const dlImg = () => {
+    const a = document.createElement('a')
+    a.href = d.img; a.download = d.imgfile
+    document.body.appendChild(a); a.click(); a.remove()
+    toast('Downloading ' + d.imgfile)
+  }
 
   const save = () => {
     onSavePoints(day, val)
@@ -57,9 +63,16 @@ export default function DetailSheet({ day, posted, onMark, points, onSavePoints,
             target="_blank" rel="noreferrer">open in repo ↗</a>
         </div>
 
+        {d.img
+          ? <img className="full" src={d.img} alt={d.imgfile} />
+          : isTextOnly(d)
+            ? <div className="noimg">ℹ️ {d.ptype} — deliberately text-only, no image (IMAGE_PROMPT.md)</div>
+            : <div className="noimg">⚠️ No image yet — save it next to the post as <b>{d.imgfile}</b></div>}
+
         <div className="acts">
           <button className="btn pri blk" onClick={copyPost}>📋 Copy post text</button>
           <div className="row2">
+            {d.img && <button className="btn sec" onClick={dlImg}>⬇️ {d.imgfile}</button>}
             <button className={'btn ' + (posted[d.day] ? 'ok' : 'sec')} onClick={() => onMark(d.day)}>
               {posted[d.day] ? '✓ Posted — undo' : 'Mark as posted'}
             </button>

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { DATA, esc, round2 } from '../data.js'
 import { ToastContext } from '../toast.js'
-import { Header, status } from './shared.jsx'
+import { Header, status, isTextOnly } from './shared.jsx'
 
 const MAXW = Math.max(...DATA.map(d => d.week))
 
@@ -25,6 +25,12 @@ export default function Home({ posted, points, onOpenDay, goPosts, theme, toggle
     try { await navigator.clipboard.writeText(d.post); toast('Copied to clipboard ✓') }
     catch { toast('Copy blocked — open the post and copy manually') }
   }
+  const dlImg = (d) => {
+    const a = document.createElement('a')
+    a.href = d.img; a.download = d.imgfile
+    document.body.appendChild(a); a.click(); a.remove()
+    toast('Downloading ' + d.imgfile)
+  }
 
   const C = 2 * Math.PI * 40
   const allDone = !next
@@ -38,12 +44,19 @@ export default function Home({ posted, points, onOpenDay, goPosts, theme, toggle
     </div>
   ) : (
     <div className="card hero fade">
+      {next.img && (
+        <div className="hero-media">
+          <img className="thumb" src={next.thumb} alt="" />
+          <span className="hero-wk mono">W{next.week} · D{next.day}</span>
+        </div>
+      )}
       <div className="body">
         <div className="label">Next up</div>
         <h3 dangerouslySetInnerHTML={{ __html: esc(next.title) }} />
         <div className="ptype">{next.ptype} · {next.req}</div>
         <div className="acts">
           <button className="btn pri" onClick={() => copyPost(next)}>📋 Copy text</button>
+          {next.img && <button className="btn sec" onClick={() => dlImg(next)}>⬇️ Image</button>}
           <button className="btn ok" onClick={() => onOpenDay(next.day)}>✓ Done</button>
         </div>
       </div>
@@ -113,6 +126,8 @@ export default function Home({ posted, points, onOpenDay, goPosts, theme, toggle
         const dn = days.filter(d => posted[d.day]).length
         const wp = round2(days.reduce((s, d) => s + (points[d.day] || 0), 0))
         const ws = days.filter(d => points[d.day] !== undefined).length
+        const want = days.filter(d => !isTextOnly(d))
+        const have = want.filter(d => d.img).length
         return (
           <div className="card wk fade" key={w} onClick={() => goPosts(w)}>
             <div className="wn">W{w}</div>
@@ -122,7 +137,10 @@ export default function Home({ posted, points, onOpenDay, goPosts, theme, toggle
               </div>
               <div className="meta">
                 <b>{dn}/{days.length} posted</b><span className="sep">·</span>
-                {ws ? `${wp} pts (${ws} scored)` : 'not scored'}
+                {ws ? `${wp} pts (${ws} scored)` : 'not scored'}<span className="sep">·</span>
+                <span style={{ color: have === want.length ? 'var(--brand)' : 'var(--org)' }}>
+                  {have}/{want.length} images
+                </span>
               </div>
             </div>
             <div className="chev">→</div>

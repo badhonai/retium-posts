@@ -145,6 +145,25 @@ renders blank). Vercel root dir = `site`.
 
 ## STATE — where we left off (update this block every session!)
 
+- **As of 2026-09-11 (session 3 — dashboard was never rendering images; fixed):**
+  - **THE DASHBOARD SHOWED NO IMAGES, AND IT WAS NEVER AN IMAGE PROBLEM.** The five week-4
+    PNGs were correct and were properly base64-embedded in `app/src/data.json` and
+    `site/index.html` — but no component ever referenced `d.img`. The token `img` appeared
+    **zero times in every `.jsx`/`.js` file** under `app/src`. The CSS classes
+    (`.hero .thumb`, `#sheet img.full`, `.prow .th`, `.hero-media`, `.hero-wk`,
+    `.badge.noimg`) were dead leftovers from the sibling projects. Generating more artwork
+    would never have helped; check this first if images "disappear" again.
+  - **Fix:** ported the missing render code from `fluton-posts`/`utexo-posts` (tooling may be
+    copied — see the top of this file) while keeping Retium's own points features intact:
+    `shared.jsx` gained `isTextOnly()` and a real `noimg` status (the old comment claimed
+    there was deliberately no such state — that comment is what hid the bug);
+    `DetailSheet.jsx` renders `d.img` + a ⬇️ download button; `Posts.jsx` renders `d.thumb`
+    as the row thumbnail; `Home.jsx` renders the hero image and shows `n/5 images` per week.
+  - **Deliberate:** External Engagement Reply and Comment on a Retium Post stay text-only, so
+    they are excluded from the image denominator and never badge as "NEEDS IMAGE". Weeks 1–3
+    legitimately have zero images and now correctly read `0/5 images`.
+  - **Verified:** `build_dashboard.py` clean · `node --check` on the inlined bundle clean ·
+    `retium_lint.py` 0 findings · 10 base64 blobs (5 img + 5 thumb) in `site/index.html`.
 - **As of 2026-09-10 (session 2 — week 4 written, points simplified, rebranded):**
   - **WEEK 4 WRITTEN (days 22–28, Sep 7–13 2026), 7 posts, text ready, not yet posted.**
     First week authored from scratch in this repo. Slate: 22 fee model → what $0.01
