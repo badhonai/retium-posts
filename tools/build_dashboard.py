@@ -187,11 +187,40 @@ def build_and_inline():
     print(f"site/index.html: {os.path.getsize(out)//1024} KB, fully inlined: {ok}")
 
 
+def image_hygiene():
+    """Nudge about image storage. Warns only — never deletes or hides anything.
+
+    Images are not kept on disk by default (tools/images.sh). If a build runs
+    with them materialised, say so; if an image on disk is not tracked by git,
+    flag it loudly, because it would silently fail to be committed.
+    """
+    extsp = None
+    exts = (".png", ".jpg", ".jpeg", ".webp")
+    on_disk = [p for p in glob.glob(os.path.join(POSTS, "week-*", "*"))
+               if p.lower().endswith(exts)]
+    if not on_disk:
+        return
+    try:
+        tracked = set(subprocess.run(["git", "ls-files", "--", "posts"],
+                                     capture_output=True, text=True,
+                                     check=True).stdout.split())
+    except Exception:
+        tracked = {p.replace(os.sep, "/") for p in on_disk}
+    untracked = [p for p in on_disk if p.replace(os.sep, "/") not in tracked]
+    if untracked:
+        print("⚠️  {} image(s) on disk are NOT tracked by git — run "
+              "tools/images.sh on before committing".format(len(untracked)))
+    else:
+        print("note: {} image(s) materialised — run tools/images.sh off "
+              "when finished".format(len(on_disk)))
+
+
 def main():
     entries = write_data_json()
     scored = [e for e in entries if e["seed"] is not None]
     pts = sum(e["seed"] for e in scored)
     print(f"data.json: {len(entries)} posts, {sum(1 for e in entries if e['img'])} images")
+    image_hygiene()
     print(f"seed scores: {len(scored)} posts scored, {pts:g} points on record")
     build_and_inline()
 

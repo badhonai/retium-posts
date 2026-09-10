@@ -19,6 +19,10 @@ tools/images.sh on         # fetch every image (before generating or committing 
 tools/images.sh off        # hide them again — this is the default state
 ```
 
+> **New session? Run `tools/doctor.sh` first.** It re-hides the images if
+> something turned that off, checks you are in sync with GitHub, and warns about any
+> image sitting on disk that git cannot see. It never resets or force-pushes.
+
 **Why this is safe.** Every image is already base64-embedded in the committed
 `app/src/data.json` and `site/index.html`. `tools/build_dashboard.py` reuses that
 embedded copy whenever the `.png` is not on disk, so **a rebuild never drops an
