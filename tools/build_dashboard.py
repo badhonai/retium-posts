@@ -187,42 +187,71 @@ def build_and_inline():
     print(f"site/index.html: {os.path.getsize(out)//1024} KB, fully inlined: {ok}")
 
 
-def image_hygiene():
-    """Nudge about image storage. Warns only — never deletes or hides anything.
-
-    Images are not kept on disk by default (tools/images.sh). If a build runs
-    with them materialised, say so; if an image on disk is not tracked by git,
-    flag it loudly, because it would silently fail to be committed.
-    """
-    extsp = None
-    exts = (".png", ".jpg", ".jpeg", ".webp")
-    on_disk = [p for p in glob.glob(os.path.join(POSTS, "week-*", "*"))
-               if p.lower().endswith(exts)]
-    if not on_disk:
-        return
+def _images_tool(*args):
+    """Run tools/images.sh. Never let image housekeeping break the build."""
+    sh = os.path.join(ROOT, "tools", "images.sh")
+    if not os.path.isfile(sh):
+        return False, "tools/images.sh not found"
     try:
-        tracked = set(subprocess.run(["git", "ls-files", "--", "posts"],
-                                     capture_output=True, text=True,
-                                     check=True).stdout.split())
+        r = subprocess.run([sh, *args], capture_output=True, text=True, timeout=300)
+        txt = (r.stdout or "") + (r.stderr or "")
+        return r.returncode == 0, txt.strip().splitlines()[-1] if txt.strip() else ""
+    except Exception as e:
+        return False, str(e)
+
+
+def untracked_images():
+    """Images inside posts/ that git cannot see — they would miss the next commit."""
+    try:
+        out = subprocess.run(["git", "ls-files", "--others", "--exclude-standard",
+                              "--", "posts"], capture_output=True, text=True).stdout
     except Exception:
-        tracked = {p.replace(os.sep, "/") for p in on_disk}
-    untracked = [p for p in on_disk if p.replace(os.sep, "/") not in tracked]
-    if untracked:
-        print("⚠️  {} image(s) on disk are NOT tracked by git — run "
-              "tools/images.sh on before committing".format(len(untracked)))
+        return []
+    exts = (".png", ".jpg", ".jpeg", ".webp")
+    return [l.strip() for l in out.splitlines() if l.strip().lower().endswith(exts)]
+
+
+def images_before_build():
+    """Materialise images if a brand-new one appeared.
+
+    Images are hidden by default, so a freshly generated .png dropped into
+    posts/ is invisible to git and would silently miss the next commit. If we
+    spot one, bring everything back first. Fully automatic — no manual step.
+    """
+    new = untracked_images()
+    if not new:
+        return
+    ok, msg = _images_tool("on")
+    print("images: {} new image(s) found — materialised so git can commit them{}"
+          .format(len(new), "" if ok else "  [FAILED: {}]".format(msg)))
+
+
+def images_after_build():
+    """Hide the images again, but only if that cannot lose anything.
+
+    Right after a build every image on disk has been embedded into data.json,
+    so hiding is safe. If a brand-new image is still untracked we keep
+    everything on disk until it has been committed.
+    """
+    ok, msg = _images_tool("safe-off")
+    if ok:
+        print("images: hidden again — every one is embedded in data.json "
+              "(automatic, nothing to do)")
     else:
-        print("note: {} image(s) materialised — run tools/images.sh off "
-              "when finished".format(len(on_disk)))
+        print("images: kept on disk ({}). Already embedded in data.json — "
+              "commit them and the next build hides them automatically."
+              .format(msg or "new image pending"))
 
 
 def main():
+    images_before_build()
     entries = write_data_json()
     scored = [e for e in entries if e["seed"] is not None]
     pts = sum(e["seed"] for e in scored)
     print(f"data.json: {len(entries)} posts, {sum(1 for e in entries if e['img'])} images")
-    image_hygiene()
     print(f"seed scores: {len(scored)} posts scored, {pts:g} points on record")
     build_and_inline()
+    images_after_build()
 
 
 if __name__ == "__main__":

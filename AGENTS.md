@@ -30,9 +30,15 @@ image** — verified byte-identical across all posts. And because this uses git
 sparse-checkout, git knows the files are absent by design: `git status` stays clean
 and a stray `git add -A` can never wipe them from the repo.
 
-- **Writing posts or just rebuilding?** Do nothing. Leave the images hidden.
-- **Generating a new week's images?** `images.sh on` first, commit, then `images.sh off`.
-- **Need to eyeball one week?** `images.sh week NN`, then `images.sh off` when done.
+- **You do not have to do any of this by hand.** `build_dashboard.py` drives it:
+  it materialises the images the moment it sees a new one (so the commit picks it
+  up), and hides them again at the end of the build once every one is embedded.
+  A new week's images need no extra command — generate, build, commit, done.
+- **Need to eyeball one week?** `images.sh week NN`, then `images.sh safe-off`.
+- **Never hand-run `images.sh off`.** Use `safe-off`, which refuses to hide an
+  image that is untracked or newer than `data.json` — i.e. one that has not been
+  committed yet. `images.sh` also refuses to run at all while anything is
+  staged, because git's `read-tree` would merge HEAD over it and revert the work.
 
 ---
 

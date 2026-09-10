@@ -13,12 +13,12 @@
 #   design and never reports them as deleted. `git status` stays clean and a
 #   stray `git add -A` can never wipe them from the repo.
 #
-# USAGE
-#   tools/images.sh status        what is on disk, what is hidden
-#   tools/images.sh off           hide every image  (the default state)
-#   tools/images.sh on            materialise every image (before generating/new
-#                                week's images, or before committing them)
-#   tools/images.sh week NN       materialise only week NN's images
+# USAGE  (in normal work you never type any of this — the build calls it)
+#   tools/images.sh status     what is on disk, what is hidden
+#   tools/images.sh safe-off   hide, but ONLY if nothing can be lost  <-- default
+#   tools/images.sh off        hide unconditionally (rarely what you want)
+#   tools/images.sh on         materialise every image
+#   tools/images.sh week NN    materialise only week NN's images
 #
 # Nothing here touches the remote. Images live in git as usual; this only
 # controls whether they are materialised locally.
@@ -36,8 +36,28 @@ IMG_PATTERNS='!posts/**/*.png
 tracked() { git ls-tree -r --name-only HEAD | grep -Ei '^posts/.*\.(png|jpe?g|webp)$' || true; }
 # images physically present
 on_disk() { find posts -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) 2>/dev/null || true; }
+# images on disk that git cannot see (the "would silently miss the commit" case)
+untracked() { git ls-files --others --exclude-standard 2>/dev/null | grep -Ei '^posts/.*\.(png|jpe?g|webp)$' || true; }
+# images newer than data.json (the last build may not have embedded them yet)
+newer_than_data() { find posts -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) -newer app/src/data.json 2>/dev/null || true; }
+
+# ⚠️  SAFETY GATE — do not remove this.
+# `git read-tree -mu HEAD` is the only way to apply sparse patterns, and it is
+# a *merge* against HEAD: if anything is STAGED, it resolves those paths back to
+# HEAD and silently reverts real work. Verified the hard way — it once wiped an
+# uncommitted build_dashboard.py. So we refuse to run with a dirty index. The
+# build never stages anything, so this never fires in normal use.
+require_clean_index() {
+  if ! git diff --cached --quiet 2>/dev/null; then
+    echo "images.sh: REFUSED — the index has STAGED changes." >&2
+    echo "           git read-tree would merge HEAD over them and revert that work." >&2
+    echo "           Commit them, or 'git reset', then re-run." >&2
+    exit 1
+  fi
+}
 
 apply() {   # apply() <patterns...>
+  require_clean_index
   git config core.sparseCheckout true
   git config core.sparseCheckoutCone false
   mkdir -p "$(dirname "$SC")"
@@ -68,6 +88,22 @@ case "$cmd" in
     echo "already in app/src/data.json, so a rebuild never drops an image."
     ;;
 
+  safe-off)
+    # Hide ONLY when nothing can be lost:
+    #   - no image is untracked (an untracked one could never reach git)
+    #   - no image is newer than data.json (older = already embedded)
+    # This is what build_dashboard.py and doctor.sh call, so staying light is
+    # automatic rather than something you have to remember.
+    u=$(untracked | wc -l | tr -d ' ')
+    n=$(newer_than_data | wc -l | tr -d ' ')
+    if [ "$u" != "0" ] || [ "$n" != "0" ]; then
+      echo "$u untracked / $n newer than data.json"
+      exit 1
+    fi
+    apply '/*' $IMG_PATTERNS
+    echo "hidden safely: $(on_disk | wc -l | tr -d ' ') on disk / $(tracked | wc -l | tr -d ' ') tracked"
+    ;;
+
   off)
     apply '/*' $IMG_PATTERNS
     echo "hidden. on disk now: $(on_disk | wc -l | tr -d ' ') / $(tracked | wc -l | tr -d ' ')"
@@ -88,7 +124,7 @@ case "$cmd" in
     ;;
 
   *)
-    echo "usage: tools/images.sh {status|off|on|week NN}" >&2
+    echo "usage: tools/images.sh {status|safe-off|off|on|week NN}" >&2
     exit 1
     ;;
 esac
