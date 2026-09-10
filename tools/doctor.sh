@@ -17,8 +17,8 @@ need=0
 grep -q 'posts/\*\*/\*\.png' .git/info/sparse-checkout 2>/dev/null || need=1
 if [ "$need" = "1" ]; then
   echo "   ⚠️  images were not hidden — re-enabling (recoverable: images.sh on)"
-  if ./tools/images.sh off >/dev/null 2>&1; then echo "   ✔ fixed"
-  else echo "   ✘ could not hide automatically — run: tools/images.sh off"; fi
+  if ./tools/images.sh safe-off >/dev/null 2>&1; then echo "   ✔ fixed"
+  else echo "   ✘ could not hide automatically — commit or rebuild, then: tools/images.sh safe-off"; fi
 fi
 
 # ── 2. counts ──────────────────────────────────────────────────────────────
