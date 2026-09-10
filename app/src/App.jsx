@@ -84,6 +84,25 @@ export default function App() {
     })
   }, [showToast])
 
+  // Bulk marking: apply a posted/unposted state to every post in one or more whole
+  // weeks at once. Weeks are whatever they are (a week holds however many posts it
+  // has), so this never assumes a fixed posts-per-week number.
+  const markWeeks = useCallback((weeks, value) => {
+    const sel = new Set(weeks)
+    if (!sel.size) return
+    const days = DATA.filter(d => sel.has(d.week))
+    const changed = days.filter(d => value ? !posted[d.day] : !!posted[d.day]).length
+    setPosted(p => {
+      const n = { ...p }
+      for (const d of days) { if (value) n[d.day] = 1; else delete n[d.day] }
+      return n
+    })
+    const w = sel.size === 1 ? `week ${[...sel][0]}` : `${sel.size} weeks`
+    showToast(changed
+      ? `${changed} post${changed === 1 ? '' : 's'} ${value ? 'marked as posted ✓' : 'cleared'} · ${w}`
+      : `Nothing to change · ${w}`)
+  }, [posted, showToast])
+
   const savePoints = useCallback((day, value) => {
     setPoints(p => {
       const n = { ...p }
@@ -153,6 +172,7 @@ export default function App() {
               goPosts={goPosts} theme={theme} toggleTheme={toggleTheme} />
           : <Posts posted={posted} points={points} weekFilter={weekFilter}
               setWeekFilter={setWeekFilter} onOpenDay={setOpenDay}
+              onMarkWeeks={markWeeks}
               theme={theme} toggleTheme={toggleTheme} />}
       </div>
       <TabBar tab={tab} setTab={setTab} />

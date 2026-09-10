@@ -5,8 +5,21 @@ import { Header, status } from './shared.jsx'
 const MAXW = Math.max(...DATA.map(d => d.week))
 const BADGE = { done: '✓ POSTED', ready: 'READY' }
 
-export default function Posts({ posted, points, weekFilter, setWeekFilter, onOpenDay, theme, toggleTheme }) {
+export default function Posts({ posted, points, weekFilter, setWeekFilter, onOpenDay, onMarkWeeks, theme, toggleTheme }) {
   const [q, setQ] = useState('')
+  const [sel, setSel] = useState(() => new Set())   // weeks ticked in the bulk panel
+  const [bulkOpen, setBulkOpen] = useState(false)
+
+  const toggleSel = (w) => setSel(s => {
+    const n = new Set(s)
+    n.has(w) ? n.delete(w) : n.add(w)
+    return n
+  })
+
+  // Every real week in the repo, in order. No synthetic empty weeks.
+  const weeks = [...new Set(DATA.map(d => d.week))].sort((a, b) => a - b)
+  const allSel = sel.size === weeks.length
+  const apply = (value) => { onMarkWeeks([...sel], value); setSel(new Set()) }
 
   const list = useMemo(() =>
     DATA
@@ -37,6 +50,43 @@ export default function Posts({ posted, points, weekFilter, setWeekFilter, onOpe
           )
         })}
       </div>
+      <div className="card bulk fade">
+        <div className="bulk-top" onClick={() => setBulkOpen(o => !o)}>
+          <b>☑︎ Bulk mark</b>
+          <span>{sel.size ? `${sel.size} week${sel.size === 1 ? '' : 's'} selected` : 'mark whole weeks at once'}</span>
+          <i className={'chev ' + (bulkOpen ? 'open' : '')}>›</i>
+        </div>
+        {bulkOpen && (
+          <>
+            <div className="chips bulk-chips">
+              {weeks.map(w => {
+                const days = DATA.filter(d => d.week === w)
+                const dn = days.filter(d => posted[d.day]).length
+                const full = dn === days.length
+                return (
+                  <div key={w} className={'chip' + (sel.has(w) ? ' on' : '')} onClick={() => toggleSel(w)}>
+                    <span className="tick">{sel.has(w) ? '✓' : ''}</span>
+                    W{w}
+                    <span className="n" style={full ? { color: 'var(--brand)' } : undefined}>{dn}/{days.length}</span>
+                  </div>
+                )
+              })}
+            </div>
+            <div className="acts bulk-acts">
+              <button className="btn ok" disabled={!sel.size} onClick={() => apply(true)}>
+                ✓ Mark {sel.size || ''} week{sel.size === 1 ? '' : 's'} posted
+              </button>
+              <button className="btn sec" disabled={!sel.size} onClick={() => apply(false)}>
+                Clear
+              </button>
+              <button className="btn sec" onClick={() => setSel(allSel ? new Set() : new Set(weeks))}>
+                {allSel ? 'None' : 'All'}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+
       {!list.length ? <div className="empty">Nothing matches.</div> : list.map(d => {
         const st = status(d, posted)
         const p = points[d.day]

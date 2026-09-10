@@ -123,6 +123,8 @@ The dashboard builder parses these exactly — do not rename the headers.
 - `python3 tools/set_password.py '<pw>'` — change the lock password (currently `king`).
 - `python3 tools/import_legacy_posts.py` — one-time importer for weeks 1–3, kept for
   provenance.
+- `node tools/e2e_bulk.js` — jsdom UI test of the built dashboard (`npm i jsdom` once).
+  Loads the real `site/index.html` and drives it; run after any `app/src` change.
 
 **Deploy:** only `site/index.html` is deployable (`app/index.html` is the Vite entry and
 renders blank). Vercel root dir = `site`.
@@ -164,6 +166,17 @@ renders blank). Vercel root dir = `site`.
     legitimately have zero images and now correctly read `0/5 images`.
   - **Verified:** `build_dashboard.py` clean · `node --check` on the inlined bundle clean ·
     `retium_lint.py` 0 findings · 10 base64 blobs (5 img + 5 thumb) in `site/index.html`.
+  - **NEW FEATURE — bulk week marking.** `Posts` view has a collapsible "☑︎ Bulk mark"
+    panel: tick any combination of weeks, then mark them all posted or clear them at once.
+    `App.jsx` owns `markWeeks(weeks, value)`; it iterates the *real* days of each selected
+    week (never a fixed posts-per-week number) and reports how many posts actually changed.
+    Selection clears after applying. Text-only posts are marked like any other — the panel
+    is about posted state, not images.
+  - **`tools/e2e_bulk.js` — the only UI test in the repo.** A jsdom harness that loads the
+    real `site/index.html`, unlocks with the password, and drives the actual React UI. It
+    re-implements no app logic, so a passing run means the shipped bundle really works.
+    Needs `npm i jsdom` once and a fresh build. 16/16 checks pass (W1+W3 → exactly days
+    1–7 & 15–21; All → 28; Clear W4 → 21 left). Extend it rather than eyeballing changes.
 - **As of 2026-09-10 (session 2 — week 4 written, points simplified, rebranded):**
   - **WEEK 4 WRITTEN (days 22–28, Sep 7–13 2026), 7 posts, text ready, not yet posted.**
     First week authored from scratch in this repo. Slate: 22 fee model → what $0.01
