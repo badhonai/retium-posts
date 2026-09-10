@@ -129,6 +129,20 @@ renders blank). Vercel root dir = `site`.
 
 ---
 
+## Workspace / auth quirks (Arena sandbox)
+
+- The git remote URL **and remote entry** are wiped between sessions. If `git push` fails, run:
+  `git config user.name "badhonai" && git config user.email "badhonai@users.noreply.github.com"`
+  then (if `git remote` shows nothing):
+  `git remote add origin "https://x-access-token:$(cat ~/.gh_token)@github.com/badhonai/retium-posts.git"`
+  (if origin exists but auth fails: `git remote set-url origin ...same URL...`).
+  Ask the owner for a fine-grained PAT scoped to **this** repo (Contents: Read & write) — a PAT
+  scoped to `fluton-posts` or `utexo-posts` will NOT work here.
+- `/tmp` does not survive between sessions — keep nothing important there.
+- `app/node_modules` is not preserved between sessions, so the first build of a session runs
+  `npm install` (~1 min). That is expected, not an error.
+- Only `site/index.html` is deployable. `app/index.html` renders blank — do not deploy it.
+
 ## STATE — where we left off (update this block every session!)
 
 - **As of 2026-09-10 (session 2 — week 4 written, points simplified, rebranded):**
