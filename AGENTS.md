@@ -6,39 +6,29 @@ repos (structure and tooling may be copied; posts, facts and branding may not).
 
 ---
 
-## 📦 Images are not kept locally — read this before hunting for a .png
+## 📦 Images are not kept on disk — two rules
 
-Post images are the single biggest thing in this repo, and they are **deliberately
-not materialised in the working tree**. They live in git exactly as before — this is
-purely a local-storage choice, controlled by `tools/images.sh`:
+Post images are the biggest thing in this repo, so they are hidden from the
+working tree by default. They are still in git and still on the deployed site:
+every image is base64-embedded in the committed `app/src/data.json`, and
+`build_dashboard.py` reuses that when the `.png` is not present. A rebuild with
+zero images on disk produces a byte-identical result.
 
 ```bash
-tools/images.sh status     # what is on disk, what is hidden
-tools/images.sh week 4     # fetch just week 4's images, when you actually need them
-tools/images.sh on         # fetch every image (before generating or committing a week)
-tools/images.sh off        # hide them again — this is the default state
+tools/images.sh status   # what is on disk, what is hidden
+tools/images.sh on       # bring every image back
+tools/images.sh off      # hide them again
+tools/images.sh week 4   # bring back just week 4
 ```
 
-> **New session? Run `tools/doctor.sh` first.** It re-hides the images if
-> something turned that off, checks you are in sync with GitHub, and warns about any
-> image sitting on disk that git cannot see. It never resets or force-pushes.
+**Rule 1 — `images.sh on` BEFORE you generate or commit a week's images.**
+While images are hidden, git cannot see a new `.png`, so it would silently miss
+the commit.
 
-**Why this is safe.** Every image is already base64-embedded in the committed
-`app/src/data.json` and `site/index.html`. `tools/build_dashboard.py` reuses that
-embedded copy whenever the `.png` is not on disk, so **a rebuild never drops an
-image** — verified byte-identical across all posts. And because this uses git
-sparse-checkout, git knows the files are absent by design: `git status` stays clean
-and a stray `git add -A` can never wipe them from the repo.
+**Rule 2 — `images.sh off` AFTER committing them.** Keeps the workspace small.
 
-- **You do not have to do any of this by hand.** `build_dashboard.py` drives it:
-  it materialises the images the moment it sees a new one (so the commit picks it
-  up), and hides them again at the end of the build once every one is embedded.
-  A new week's images need no extra command — generate, build, commit, done.
-- **Need to eyeball one week?** `images.sh week NN`, then `images.sh safe-off`.
-- **Never hand-run `images.sh off`.** Use `safe-off`, which refuses to hide an
-  image that is untracked or newer than `data.json` — i.e. one that has not been
-  committed yet. `images.sh` also refuses to run at all while anything is
-  staged, because git's `read-tree` would merge HEAD over it and revert the work.
+Writing posts or rebuilding needs neither. If an image ever looks missing, run
+`tools/images.sh status` first — that is almost always the explanation.
 
 ---
 
