@@ -35,11 +35,15 @@ worth understanding if you're evaluating how the mesh holds together under load.
 @RetiumChain
 ```
 
+## 🖼 Image
+
+![day-24-keepers-mesh-topology.png](day-24-keepers-mesh-topology.png)
+
+**File:** `day-24-keepers-mesh-topology.png` — same name as this post. GitHub: click file → *Download raw file*. Phone: long-press image → Save.
+
 ## 🎨 Visual notes
 
-No visual yet — none is required for this post. If one is produced later, save it
-next to this file as `day-24-keepers-mesh-topology.png` (or `.jpg`) and the dashboard will pair it
-automatically. See `IMAGE_PROMPT.md` before generating anything.
+Mesh lattice with three nodes of clearly different sizes, the Keeper node lit in brand orange. Keeps the 1,000,000 RTM tier visually distinct from Workers and Suits.
 
 ## 🏆 Score
 

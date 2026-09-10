@@ -1,63 +1,89 @@
 # 🎨 Image prompt — Retium
 
-**Status: v0.1, unvalidated.** No graphics have been produced for this project yet —
-weeks 1–3 shipped as text only. Nothing here has been approved by the owner, so treat
-every value as a starting point and get a render approved before making more.
+**v1.0 — validated 2026-09-10 on the five week-4 renders.**
 
----
+## The one rule: never let the model draw text
+
+Image models garble text. So the render is generated with **no text, no letters, no
+words, no numbers**, and every word is added afterwards with a real font by
+`tools/finish_image.py`. This is why the captions on the approved renders are crisp.
+Never ask the model for text — not even a headline.
+
+## Pipeline
+
+```bash
+# 1. generate the artwork (no text, empty top-left, empty bottom band)
+#    -> raw-NN.png
+# 2. crop to 16:9, draw the caption, paste the official logo
+python3 tools/finish_image.py raw-22.png final-day-22.png \
+    --headline "THE FEE IS A CONSTANT" --sub '$0.01 · KNOWN BEFORE YOU SUBMIT'
+# 3. save next to the post as <post-basename>.png -> the dashboard pairs it
+```
+
+## Render prompt (the working template)
+
+```
+Abstract <concept> on a near-black #1f1918 background. <describe the diagram>,
+accent in vivid orange #fc450a, muted grey for the rest. Clean, minimal, precise,
+thin strokes, subtle glow. Absolutely NO text, NO letters, NO words, NO numbers
+anywhere in the image. No people, no faces, no hands. Keep the top 22 percent of
+the frame as completely empty dark background, and keep the bottom 20 percent as
+empty dark background.
+```
+
+The two empty bands are load-bearing: the logo goes top-left, the caption bottom-left.
+
+## Layout (fractions of image size, set in `tools/brand_logo.py`)
+
+| Element | Position |
+|---|---|
+| Logo | left edge `0.050·W`, height `0.110·H`, v-centre `0.155·H` |
+| Headline | left `0.050·W` + rule, bottom-anchored at `0.945·H`, DejaVu Sans Bold, ~`0.072·H`, near-white `#ededed` |
+| Sub-line | below the headline, DejaVu Sans Regular, ~`0.038·H`, brand `#fc450a` |
+| Brand rule | thin `#fc450a` bar immediately left of the text block |
+| Site link | `retium.org`, bottom **right** at `0.95·W`, grey `#9b9ba3` |
+
+Output is centre-cropped to 16:9 (1365×768 from a 1408×768 render) for X.
 
 ## Logos
 
-Four official files in `brand/`. All four are **monochrome** — there is no brand colour
-in them to sample.
+All four official files in `brand/` are **monochrome** — never recolour them.
 
-| File | Size | Use on |
-|---|---|---|
-| `retium-logo-horizontal-onlight.png` | 573×106 | light backgrounds (dark ink) |
-| `retium-logo-horizontal-ondark.png` | 573×106 | dark backgrounds (light ink) |
-| `retium-logo-vertical-onlight.png` | 415×212 | light backgrounds, square-ish layouts |
-| `retium-logo-vertical-ondark.png` | 415×212 | dark backgrounds, square-ish layouts |
+| File | Use on |
+|---|---|
+| `retium-logo-horizontal-ondark.png` (573×106, light ink) | dark renders — the default |
+| `retium-logo-horizontal-onlight.png` (573×106, dark ink) | light renders (`--light`) |
+| `retium-logo-vertical-ondark.png` / `-onlight.png` (415×212) | square layouts |
 
-Picking the wrong variant is the most common error — check the background first.
+⚠️ Brand palette came from the owner, not the artwork: **#fc450a** primary,
+**#1f1918** brand dark. (Earlier notes disagreed — week 1 said blue, week 2 said
+#E04000 orange. #fc450a is now confirmed as current.)
 
-⚠️ **Open question for the owner:** the week-1 notes say "Retium's blue branding
-colours"; the week-2 notes say "#E04000 orange + white bg". Confirm the current accent
-before generating anything with colour.
+## Which posts get an image
 
-## Logo placement
+Long-form only: **Personal Timeline, X Community, Repost + Comment, and both bonus
+posts.** Skip the **External Engagement Reply** and the **Comment on a Retium Post** —
+they hang off someone else's post, and a graphic there reads as spam. That's 5 of 7
+per week, matching the pattern the owner used in week 2.
 
-`tools/brand_logo.py` composites the logo onto a render. Its constants are inherited
-from the sibling projects and have **not** been tuned for the Retium logotype:
-
-| Constant | Value | Meaning |
-|---|---|---|
-| `LEFT` | 0.0581 × W | left inset |
-| `W` | fraction of width | logo width |
-| `HFRAC` | 0.1953 × H | logo height |
-| `VCENTER` | 0.1914 × H | vertical centre of the logo band |
-
-The Fluton logotype (3.9:1) needed a wider empty zone than Utexo's. Retium's horizontal
-mark is 5.4:1 — wider again — so expect to widen the band. Keep the top ~26% clear of
-subject matter so the logo never overlaps anything.
-
-## Composition rules
+## Content rules
 
 - No people, no faces, no hands — spell this out whenever the subject implies figures.
-- Diagram-style renders suit this content: fork vs mesh, fee tables, pipeline flows,
-  comparison grids. These are reference graphics people save, not mood images.
-- Never put a 🔴 banned term in the image text. If a graphic names a component, it must
-  be a 🟢 established one (Router, Matchmaker, PrimeMesh, HardFinal, PNLA).
-- Any number shown must appear in the 🟢 list ($0.01–$0.45, Weight 1–5, 10K/100K/1M, 90%).
-- Keep text minimal. If it needs a paragraph to make sense, it is the wrong image.
+- Diagram-style reference graphics (fee ladders, ring charts, pipelines, mesh
+  lattices). These get saved and shared, unlike mood imagery.
+- Never put a 🔴 banned term in image text. If a component is named it must be a 🟢
+  established one (Router, Matchmaker, PrimeMesh, HardFinal, PNLA, Keepers).
+- Any number shown must be on the green list ($0.01–$0.45, Weight 1–5, 10K/100K/1M, 90%).
 
 ## Workflow
 
-1. Render one image.
-2. **Owner approves in chat** — nothing gets committed without it.
-3. Save as the post basename + `.png` so the dashboard pairs it automatically.
-4. Rebuild, then record what worked here so the next one starts from a validated spec.
+1. Render one. 2. **Owner approves in chat.** 3. Save as the post basename + `.png`.
+4. Rebuild. Nothing is committed before approval.
 
 ## Changelog
 
-- **v0.1 — 2026-09-10.** Initial version. Logos catalogued (all monochrome); placement
-  constants inherited and untested; no renders produced yet.
+- **v1.0 — 2026-09-10.** Validated on week 4 (days 22, 24, 25, 27, 28), approved first
+  pass with one change: add the site link bottom-right. Locked in: no model-drawn text,
+  16:9, logo placement above, brand #fc450a on #1f1918, long-form-only images.
+- **v0.1 — 2026-09-10.** Initial version. Logos catalogued; placement constants
+  inherited from the sibling projects and untested.

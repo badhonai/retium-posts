@@ -40,11 +40,15 @@ wallet.retium.org
 @RetiumChain
 ```
 
+## 🖼 Image
+
+![day-22-what-a-one-cent-fee-unlocks.png](day-22-what-a-one-cent-fee-unlocks.png)
+
+**File:** `day-22-what-a-one-cent-fee-unlocks.png` — same name as this post. GitHub: click file → *Download raw file*. Phone: long-press image → Save.
+
 ## 🎨 Visual notes
 
-No visual yet — none is required for this post. If one is produced later, save it
-next to this file as `day-22-what-a-one-cent-fee-unlocks.png` (or `.jpg`) and the dashboard will pair it
-automatically. See `IMAGE_PROMPT.md` before generating anything.
+Flat calm orange line held against a wildly spiking grey one. The post's point is that the fee is *known*, not merely cheap, so the contrast is constant vs chaotic rather than small vs large.
 
 ## 🏆 Score
 

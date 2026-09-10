@@ -40,11 +40,15 @@ wallet.retium.org
 @RetiumChain
 ```
 
+## 🖼 Image
+
+![day-28-hardfinal-settlement-use-cases.png](day-28-hardfinal-settlement-use-cases.png)
+
+**File:** `day-28-hardfinal-settlement-use-cases.png` — same name as this post. GitHub: click file → *Download raw file*. Phone: long-press image → Save.
+
 ## 🎨 Visual notes
 
-No visual yet — none is required for this post. If one is produced later, save it
-next to this file as `day-28-hardfinal-settlement-use-cases.png` (or `.jpg`) and the dashboard will pair it
-automatically. See `IMAGE_PROMPT.md` before generating anything.
+Several dashed broken paths on the left converging into one solid sealed orange cube. Visualises probabilistic finality collapsing into deterministic settlement.
 
 ## 🏆 Score
 

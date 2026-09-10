@@ -46,11 +46,15 @@ wallet.retium.org
 @RetiumChain
 ```
 
+## 🖼 Image
+
+![day-25-validator-economics-no-inflation.png](day-25-validator-economics-no-inflation.png)
+
+**File:** `day-25-validator-economics-no-inflation.png` — same name as this post. GitHub: click file → *Download raw file*. Phone: long-press image → Save.
+
 ## 🎨 Visual notes
 
-No visual yet — none is required for this post. If one is produced later, save it
-next to this file as `day-25-validator-economics-no-inflation.png` (or `.jpg`) and the dashboard will pair it
-automatically. See `IMAGE_PROMPT.md` before generating anything.
+Ring chart with one dominant orange segment. Mirrors the 90% Worker share against the smaller Foundation, Keeper, burn, Suit and Treasury slices.
 
 ## 🏆 Score
 

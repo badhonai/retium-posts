@@ -127,6 +127,11 @@ renders blank). Vercel root dir = `site`.
     secondary accent. Applied to the accent colour, lock screen, favicon and theme
     colour. ⚠️ All four official logos are monochrome, so the palette came from the
     owner, not from the artwork.
+  - **WEEK 4 IMAGES SHIPPED — 5 of 7 (days 22, 24, 25, 27, 28).** Long-form posts get an
+    image; the external reply (23) and the comment (26) are deliberately text-only.
+    Pipeline is locked in `IMAGE_PROMPT.md` v1.0: the model never draws text, captions go
+    on afterwards in DejaVu via `tools/finish_image.py`, 16:9, official logo top-left,
+    `retium.org` bottom-right. Brand orange #fc450a on near-black #1f1918.
   - 28 posts total, 8 scored, 661.46 points on record (weeks 1 and 3; week 2 was never
     recorded and week 4 is unscored).
   - Lock password `king`. All browser storage goes through `LS` in `app/src/data.js`.
