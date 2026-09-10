@@ -6,6 +6,32 @@ repos (structure and tooling may be copied; posts, facts and branding may not).
 
 ---
 
+## 📦 Images are not kept locally — read this before hunting for a .png
+
+Post images are the single biggest thing in this repo, and they are **deliberately
+not materialised in the working tree**. They live in git exactly as before — this is
+purely a local-storage choice, controlled by `tools/images.sh`:
+
+```bash
+tools/images.sh status     # what is on disk, what is hidden
+tools/images.sh week 4     # fetch just week 4's images, when you actually need them
+tools/images.sh on         # fetch every image (before generating or committing a week)
+tools/images.sh off        # hide them again — this is the default state
+```
+
+**Why this is safe.** Every image is already base64-embedded in the committed
+`app/src/data.json` and `site/index.html`. `tools/build_dashboard.py` reuses that
+embedded copy whenever the `.png` is not on disk, so **a rebuild never drops an
+image** — verified byte-identical across all posts. And because this uses git
+sparse-checkout, git knows the files are absent by design: `git status` stays clean
+and a stray `git add -A` can never wipe them from the repo.
+
+- **Writing posts or just rebuilding?** Do nothing. Leave the images hidden.
+- **Generating a new week's images?** `images.sh on` first, commit, then `images.sh off`.
+- **Need to eyeball one week?** `images.sh week NN`, then `images.sh off` when done.
+
+---
+
 ## What this repo is
 
 A posting pipeline for the Retium Community Contribution Program, which is
